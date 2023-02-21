@@ -91,8 +91,11 @@ namespace StarterAssets
         [Tooltip("Bullet Spawn Position")]
         [SerializeField] private Transform bulletSpawnPos;
 
-        private bool canShoot;
-        private bool isCrouching;
+        [Tooltip("Player Mesh Renderer")]
+        [SerializeField] private SkinnedMeshRenderer playerMesh;
+
+        [Tooltip("How Many Hits the Player can take")]
+        [SerializeField] private int HitsRemaining;
 
         [Header("Cinemachine")]
         [Tooltip("The follow target set in the Cinemachine Virtual Camera that the camera will follow")]
@@ -139,6 +142,11 @@ namespace StarterAssets
         private float _verticalVelocity;
         private float _terminalVelocity = 53.0f;
 
+        // useful bools
+        private bool canShoot;
+        private bool isCrouching;
+        private bool isHurt;
+
         // timeout deltatime
         private float _jumpTimeoutDelta;
         private float _fallTimeoutDelta;
@@ -151,6 +159,7 @@ namespace StarterAssets
         private int _animMotionSpeed;
         private int _animCrouch;
         private int _animAim;
+        private int _animFall;
 
 #if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
         private PlayerInput _playerInput;
@@ -204,6 +213,8 @@ namespace StarterAssets
             // reset our timeouts on start
             _jumpTimeoutDelta = JumpTimeout;
             _fallTimeoutDelta = FallTimeout;
+
+            HitsRemaining = 3;
         }
 
         private void Update()
@@ -211,11 +222,14 @@ namespace StarterAssets
             _hasAnimator = TryGetComponent(out _animator);
 
             JumpAndGravity();
-            Crouch();
-            Aim();
-            Shoot();
             GroundedCheck();
-            Move();
+            if(!isHurt)
+            {
+                Crouch();
+                Aim();
+                Shoot();
+                Move();
+            }
         }
 
         private void LateUpdate()
@@ -232,6 +246,7 @@ namespace StarterAssets
             _animMotionSpeed = Animator.StringToHash("MotionSpeed");
             _animCrouch = Animator.StringToHash("Crouch");
             _animAim = Animator.StringToHash("Aim");
+            _animFall = Animator.StringToHash("PlayerHurt");
         }
 
         private void GroundedCheck()
@@ -388,7 +403,7 @@ namespace StarterAssets
                 {
                     // Checks to see whether player jump
                     var cantJump = Physics.Raycast(transform.position, Vector3.up, 2f, playerLayerMask);
-                    if(!cantJump)
+                    if(!cantJump && !isHurt)
                     {
                         // the square root of H * -2 * G = how much velocity needed to reach desired height
                         _verticalVelocity = Mathf.Sqrt(JumpHeight * -2f * Gravity);
@@ -487,7 +502,7 @@ namespace StarterAssets
 
         private void Aim()
         {
-            if (_input.ads)
+            if (_input.ads && Grounded)
             {
                 if (_hasAnimator)
                 {
@@ -581,9 +596,30 @@ namespace StarterAssets
                 GroundedRadius);
         }
 
+        private void OnTriggerEnter(Collider other)
+        {
+            if (other.GetComponent<HurtPlayer>() != null)
+            {
+                if(HitsRemaining == 0)
+                {
+                    // TODO: Game Over
+                }
+                else
+                {
+                    //HitsRemaining--;
+                    _animator.SetLayerWeight(2, 1f);
+                    _animator.SetTrigger(_animFall);
+                    _controller.detectCollisions = false;
+                    isHurt = true;
+                }
+            } else  {
+                // Player didn't get hit :D
+            }
+        }
+
         private void OnFootstep(AnimationEvent animationEvent)
         {
-            if (animationEvent.animatorClipInfo.weight > 0.5f)
+            if (animationEvent.animatorClipInfo.weight > 0.5f && !isHurt)
             {
                 if (FootstepAudioClips.Length > 0)
                 {
@@ -599,6 +635,58 @@ namespace StarterAssets
             {
                 AudioSource.PlayClipAtPoint(LandingAudioClip, transform.TransformPoint(_controller.center), FootstepAudioVolume);
             }
+        }
+
+        private void OnDamageTaken(AnimationEvent animationEvent)
+        {
+            if (animationEvent.animatorClipInfo.weight > 0.5f)
+            {
+                // TODO: Play oof sound
+            }
+        }
+
+        private void OnFall(AnimationEvent animationEvent)
+        {
+            if (animationEvent.animatorClipInfo.weight > 0.5f)
+            {
+                // TODO: Play fall sound, below is placeholder
+                AudioSource.PlayClipAtPoint(LandingAudioClip, transform.TransformPoint(_controller.center), FootstepAudioVolume);
+                StartCoroutine(iFrameAnimation());
+            }
+        }
+
+        private void OnGetUp(AnimationEvent animationEvent)
+        {
+            if (animationEvent.animatorClipInfo.weight > 0.5f)
+            {
+                _animator.SetLayerWeight(2, 0f);
+                isHurt = false;
+                StartCoroutine(ExtendIFrames());
+            }
+        }
+
+        private IEnumerator iFrameAnimation()
+        {
+            yield return new WaitForSeconds(1.75f);
+            playerMesh.enabled = false;
+            yield return new WaitForSeconds(0.05f);
+            playerMesh.enabled = true;
+
+            int count = 7;
+            while(count > 0)
+            {
+                yield return new WaitForSeconds(0.1f);
+                playerMesh.enabled = false;
+                yield return new WaitForSeconds(0.05f);
+                playerMesh.enabled = true;
+                count--;
+            }
+        }
+
+        private IEnumerator ExtendIFrames()
+        {
+            yield return new WaitForSeconds(0.85f);
+            _controller.detectCollisions = true;
         }
     }
 }
