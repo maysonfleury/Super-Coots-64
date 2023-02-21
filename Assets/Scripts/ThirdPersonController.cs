@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using Cinemachine;
 #if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
 using UnityEngine.InputSystem;
 #endif
@@ -73,7 +74,13 @@ namespace StarterAssets
         [Tooltip("Crosshair Reference")]
         public GameObject Crosshair;
 
+        [Header("Layer Masks")]
+
+        [Tooltip("Which objects should be shootable")]
         [SerializeField] private LayerMask aimColliderMask = new LayerMask();
+
+        [Tooltip("Mask to ignore Player layer")]
+        [SerializeField] private LayerMask playerLayerMask = new LayerMask();
 
 
         [Header("Combat")]
@@ -85,6 +92,7 @@ namespace StarterAssets
         [SerializeField] private Transform bulletSpawnPos;
 
         private bool canShoot;
+        private bool isCrouching;
 
         [Header("Cinemachine")]
         [Tooltip("The follow target set in the Cinemachine Virtual Camera that the camera will follow")]
@@ -99,10 +107,10 @@ namespace StarterAssets
         }
 
         [Tooltip("The Camera used when running around")]
-        public GameObject ExplorationCam;
+        [SerializeField] private CinemachineVirtualCamera ExplorationCam;
 
         [Tooltip("The Camera used when in combat (aiming down sight)")]
-        public GameObject CombatCam;
+        [SerializeField] private CinemachineVirtualCamera CombatCam;
 
         [Tooltip("Which direction the Camera should look during Combat")]
         public Transform CombatLookAt;
@@ -378,13 +386,20 @@ namespace StarterAssets
                 // Jump
                 if (_input.jump && _jumpTimeoutDelta <= 0.0f)
                 {
-                    // the square root of H * -2 * G = how much velocity needed to reach desired height
-                    _verticalVelocity = Mathf.Sqrt(JumpHeight * -2f * Gravity);
-
-                    // update animator if using character
-                    if (_hasAnimator)
+                    // Checks to see whether player jump
+                    var cantJump = Physics.Raycast(transform.position, Vector3.up, 2f, playerLayerMask);
+                    if(!cantJump)
                     {
-                        _animator.SetBool(_animJump, true);
+                        // the square root of H * -2 * G = how much velocity needed to reach desired height
+                        _verticalVelocity = Mathf.Sqrt(JumpHeight * -2f * Gravity);
+
+                        // update animator if using character
+                        if (_hasAnimator)
+                        {
+                            _animator.SetBool(_animJump, true);
+                        }
+                    } else {
+                        _input.jump = false;
                     }
                 }
 
@@ -430,14 +445,42 @@ namespace StarterAssets
             {
                 if (_hasAnimator)
                 {
+                    // Change character height and hitbox when crouching
                     _animator.SetBool(_animCrouch, true);
+                    _controller.height = 1.35f;
+                    _controller.center = new Vector3(0, 0.6975f, 0.15f);
+                    isCrouching = true;
+
+                    // Change camera heights
+                    var camExplore = ExplorationCam.GetCinemachineComponent<Cinemachine3rdPersonFollow>();
+                    camExplore.ShoulderOffset = new Vector3(1, -0.15f, 0);
+                    var camCombat = CombatCam.GetCinemachineComponent<Cinemachine3rdPersonFollow>();
+                    camCombat.ShoulderOffset = new Vector3(0.7f, -0.25f, 0);
                 }
             }
             else
             {
-                if (_hasAnimator)
+                if(isCrouching)
                 {
-                    _animator.SetBool(_animCrouch, false);
+                    // Checks to see whether player can stand up
+                    var cantStandUp = Physics.Raycast(transform.position, Vector3.up, 2f, playerLayerMask);
+                    if(!cantStandUp)
+                    {
+                        if (_hasAnimator)
+                        {
+                            // Change character height and hitbox when standing up
+                            _animator.SetBool(_animCrouch, false);
+                            _controller.height = 1.8f;
+                            _controller.center = new Vector3(0, 0.93f, 0);
+                            isCrouching = false;
+
+                            // Change camera heights
+                            var camExplore = ExplorationCam.GetCinemachineComponent<Cinemachine3rdPersonFollow>();
+                            camExplore.ShoulderOffset = new Vector3(1, 0.15f, 0);
+                            var camCombat = CombatCam.GetCinemachineComponent<Cinemachine3rdPersonFollow>();
+                            camCombat.ShoulderOffset = new Vector3(0.7f, 0.25f, 0);
+                        }
+                    }
                 }
             }
         }
@@ -454,7 +497,7 @@ namespace StarterAssets
 
                 // Change Camera
                 currentCamStyle = CameraStyle.Combat;
-                CombatCam.SetActive(true);
+                CombatCam.enabled = true;
 
                 // Change Sensitivity & activate Crosshair
                 Sensitivity = 0.55f;
@@ -471,7 +514,7 @@ namespace StarterAssets
 
                 // Change Camera
                 currentCamStyle = CameraStyle.Exploration;
-                CombatCam.SetActive(false);
+                CombatCam.enabled = false;
 
                 // Change Sensitivity & disable Crosshair
                 Sensitivity = 1f;
@@ -482,19 +525,29 @@ namespace StarterAssets
 
         private void Shoot()
         {
-            if (_input.shoot && canShoot)
+            if (_input.shoot)
             {
-                Vector3 mouseWorldPosition = Vector3.zero;
-                Vector2 screenCenterPoint = new Vector2(Screen.width / 2f, Screen.height / 2f);
-                Ray ray = Camera.main.ScreenPointToRay(screenCenterPoint);
-                if (Physics.Raycast(ray, out RaycastHit rcHit, 999f, aimColliderMask))
+                // Removes Shoot input if the player is not in position to shoot
+                if(!canShoot)
                 {
-                    mouseWorldPosition = rcHit.point;
-                }
+                    _input.shoot = false;
+                } 
+                else 
+                {
+                    // Gets world coords of target
+                    Vector3 mouseWorldPosition = Vector3.zero;
+                    Vector2 screenCenterPoint = new Vector2(Screen.width / 2f, Screen.height / 2f);
+                    Ray ray = Camera.main.ScreenPointToRay(screenCenterPoint);
+                    if (Physics.Raycast(ray, out RaycastHit rcHit, 999f, aimColliderMask))
+                    {
+                        mouseWorldPosition = rcHit.point;
+                    }
 
-                Vector3 aimDir = (mouseWorldPosition - bulletSpawnPos.position).normalized;
-                Instantiate(bulletPrefab, bulletSpawnPos.position, Quaternion.LookRotation(aimDir, Vector3.up));
-                _input.shoot = false;
+                    // Shoots projectile
+                    Vector3 aimDir = (mouseWorldPosition - bulletSpawnPos.position).normalized;
+                    Instantiate(bulletPrefab, bulletSpawnPos.position, Quaternion.LookRotation(aimDir, Vector3.up));
+                    _input.shoot = false;
+                }
             }
         }
 
