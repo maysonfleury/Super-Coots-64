@@ -611,6 +611,12 @@ namespace StarterAssets
                     _animator.SetTrigger(_animFall);
                     _controller.detectCollisions = false;
                     isHurt = true;
+
+                    // Leave Combat Mode
+                    currentCamStyle = CameraStyle.Exploration;
+                    CombatCam.enabled = false;
+                    Sensitivity = 1f;
+                    Crosshair.SetActive(false);
                 }
             } else  {
                 // Player didn't get hit :D
@@ -668,11 +674,8 @@ namespace StarterAssets
         private IEnumerator iFrameAnimation()
         {
             yield return new WaitForSeconds(1.75f);
-            playerMesh.enabled = false;
-            yield return new WaitForSeconds(0.05f);
-            playerMesh.enabled = true;
 
-            int count = 7;
+            int count = 8;
             while(count > 0)
             {
                 yield return new WaitForSeconds(0.1f);
