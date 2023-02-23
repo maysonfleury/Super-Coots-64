@@ -17,9 +17,9 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.35074824
-  m_TransitionOffset: 0.040981922
-  m_ExitTime: 0.025752243
+  m_TransitionDuration: 0.33130988
+  m_TransitionOffset: 0
+  m_ExitTime: 8.251898e-10
   m_HasExitTime: 0
   m_HasFixedDuration: 1
   m_InterruptionSource: 0
@@ -73,34 +73,6 @@ AnimatorStateTransition:
   m_TransitionDuration: 0.13639507
   m_TransitionOffset: 0
   m_ExitTime: 0.017019132
-  m_HasExitTime: 0
-  m_HasFixedDuration: 1
-  m_InterruptionSource: 0
-  m_OrderedInterruption: 1
-  m_CanTransitionToSelf: 1
---- !u!1101 &-7186290397337718954
-AnimatorStateTransition:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: 
-  m_Conditions:
-  - m_ConditionMode: 1
-    m_ConditionEvent: DodgeRoll
-    m_EventTreshold: 0
-  - m_ConditionMode: 2
-    m_ConditionEvent: Aim
-    m_EventTreshold: 0
-  m_DstStateMachine: {fileID: 0}
-  m_DstState: {fileID: -5549465270575408673}
-  m_Solo: 0
-  m_Mute: 0
-  m_IsExit: 0
-  serializedVersion: 3
-  m_TransitionDuration: 0.46733558
-  m_TransitionOffset: 0
-  m_ExitTime: 0
   m_HasExitTime: 0
   m_HasFixedDuration: 1
   m_InterruptionSource: 0
@@ -868,9 +840,9 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.65150577
-  m_TransitionOffset: 0.10540984
-  m_ExitTime: 0.050568223
+  m_TransitionDuration: 0.19326016
+  m_TransitionOffset: 0.0000000057034613
+  m_ExitTime: 0
   m_HasExitTime: 0
   m_HasFixedDuration: 1
   m_InterruptionSource: 0
@@ -1117,9 +1089,9 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.39400578
-  m_TransitionOffset: 0.028375598
-  m_ExitTime: 0.019527256
+  m_TransitionDuration: 0.29846856
+  m_TransitionOffset: 0
+  m_ExitTime: 3.8405054e-10
   m_HasExitTime: 0
   m_HasFixedDuration: 1
   m_InterruptionSource: 0
@@ -1799,7 +1771,6 @@ AnimatorState:
   m_CycleOffset: 0
   m_Transitions:
   - {fileID: 222541162206579566}
-  - {fileID: -7186290397337718954}
   m_StateMachineBehaviours: []
   m_Position: {x: 50, y: 50, z: 0}
   m_IKOnFeet: 0
