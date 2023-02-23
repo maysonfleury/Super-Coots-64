@@ -13,6 +13,7 @@ namespace StarterAssets
 		public bool jump;
 		public bool sprint;
 		public bool crouch;
+		public bool dodgeroll;
 		public bool shoot;
 		public bool ads;
 
@@ -52,6 +53,11 @@ namespace StarterAssets
 			CrouchInput(value.isPressed);
 		}
 
+		public void OnDodgeRoll(InputValue value)
+		{
+			DodgeRollInput(value.isPressed);
+		}
+
 		public void OnShoot(InputValue value)
 		{
 			ShootInput(value.isPressed);
@@ -87,6 +93,11 @@ namespace StarterAssets
 		public void CrouchInput(bool newCrouchState)
 		{
 			crouch = newCrouchState;
+		}
+
+		public void DodgeRollInput(bool newDodgeRollState)
+		{
+			dodgeroll = newDodgeRollState;
 		}
 
 		public void ShootInput(bool newShootState)

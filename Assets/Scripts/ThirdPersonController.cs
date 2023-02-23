@@ -28,6 +28,9 @@ namespace StarterAssets
         [Tooltip("Crouching speed of the character in m/s")]
         public float CrouchSpeed = 2.25f;
 
+        [Tooltip("Rolling speed of the character in m/s")]
+        public float RollSpeed = 5f;
+
         [Tooltip("How fast the character turns to face movement direction")]
         [Range(0.0f, 0.3f)]
         public float RotationSmoothTime = 0.12f;
@@ -52,6 +55,9 @@ namespace StarterAssets
 
         [Tooltip("Time required to pass before entering the fall state. Useful for walking down stairs")]
         public float FallTimeout = 0.15f;
+
+        [Tooltip("Time required to pass between dodges.")]
+        public float DodgeTimeout = 2f;
 
         [Header("Player Grounded")]
         [Tooltip("If the character is grounded or not. Not part of the CharacterController built in grounded check")]
@@ -96,6 +102,9 @@ namespace StarterAssets
 
         [Tooltip("How Many Hits the Player can take")]
         [SerializeField] private int HitsRemaining;
+
+        [Tooltip("Triggers Game Over flag when Health hits 0")]
+        public bool GameOver;
 
         [Header("Cinemachine")]
         [Tooltip("The follow target set in the Cinemachine Virtual Camera that the camera will follow")]
@@ -146,10 +155,12 @@ namespace StarterAssets
         private bool canShoot;
         private bool isCrouching;
         private bool isHurt;
+        private bool isRolling;
 
         // timeout deltatime
         private float _jumpTimeoutDelta;
         private float _fallTimeoutDelta;
+        private float _dodgeTimeoutDelta;
 
         // animation IDs
         private int _animSpeed;
@@ -158,8 +169,12 @@ namespace StarterAssets
         private int _animFreeFall;
         private int _animMotionSpeed;
         private int _animCrouch;
+        private int _animDodgeRoll;
         private int _animAim;
         private int _animFall;
+
+        // user interface
+        private PlayerHealthVisual _healthVisual;
 
 #if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
         private PlayerInput _playerInput;
@@ -213,22 +228,34 @@ namespace StarterAssets
             // reset our timeouts on start
             _jumpTimeoutDelta = JumpTimeout;
             _fallTimeoutDelta = FallTimeout;
+            _dodgeTimeoutDelta = DodgeTimeout;
 
-            HitsRemaining = 3;
+            HitsRemaining = 8;
+            _healthVisual = GetComponent<PlayerHealthVisual>();
+            _healthVisual.SetCurrentHealth(8);
+
+            GameOver = false;
         }
 
         private void Update()
         {
             _hasAnimator = TryGetComponent(out _animator);
 
-            JumpAndGravity();
-            GroundedCheck();
-            if(!isHurt)
+            if(!GameOver)
             {
-                Crouch();
-                Aim();
-                Shoot();
-                Move();
+                JumpAndGravity();
+                GroundedCheck();
+                DodgeRoll();
+                if(!isHurt)
+                {
+                    if(!isRolling)
+                    {
+                        Crouch();
+                        Aim();
+                        Shoot();
+                    }
+                    Move();
+                }
             }
         }
 
@@ -245,6 +272,7 @@ namespace StarterAssets
             _animFreeFall = Animator.StringToHash("FreeFall");
             _animMotionSpeed = Animator.StringToHash("MotionSpeed");
             _animCrouch = Animator.StringToHash("Crouch");
+            _animDodgeRoll = Animator.StringToHash("DodgeRoll");
             _animAim = Animator.StringToHash("Aim");
             _animFall = Animator.StringToHash("PlayerHurt");
         }
@@ -330,6 +358,8 @@ namespace StarterAssets
 
             Vector3 targetDirection = Quaternion.Euler(0.0f, _targetRotation, 0.0f) * Vector3.forward;
 
+            if(currentCamStyle == CameraStyle.Combat && isRolling) targetDirection = transform.forward;
+
             // move the player
             _controller.Move(targetDirection.normalized * (_speed * Time.deltaTime) + new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime);
 
@@ -370,7 +400,7 @@ namespace StarterAssets
                 }
             }
 
-            // update animator if using character
+            // update animator
             if (_hasAnimator)
             {
                 _animator.SetFloat(_animSpeed, _animationBlend);
@@ -385,7 +415,7 @@ namespace StarterAssets
                 // reset the fall timeout timer
                 _fallTimeoutDelta = FallTimeout;
 
-                // update animator if using character
+                // update animator
                 if (_hasAnimator)
                 {
                     _animator.SetBool(_animJump, false);
@@ -403,7 +433,7 @@ namespace StarterAssets
                 {
                     // Checks to see whether player jump
                     var cantJump = Physics.Raycast(transform.position, Vector3.up, 2f, playerLayerMask);
-                    if(!cantJump && !isHurt)
+                    if(!cantJump && !isHurt && !isRolling)
                     {
                         // the square root of H * -2 * G = how much velocity needed to reach desired height
                         _verticalVelocity = Mathf.Sqrt(JumpHeight * -2f * Gravity);
@@ -436,7 +466,7 @@ namespace StarterAssets
                 }
                 else
                 {
-                    // update animator if using character
+                    // update animator
                     if (_hasAnimator)
                     {
                         _animator.SetBool(_animFreeFall, true);
@@ -497,6 +527,46 @@ namespace StarterAssets
                         }
                     }
                 }
+            }
+        }
+
+        private void DodgeRoll()
+        {
+            if (Grounded && !isHurt)
+            {
+                // can only roll if cooldown is complete and if player is moving
+                if (_input.dodgeroll && _dodgeTimeoutDelta <= 0.0f && _input.move != Vector2.zero)
+                {
+                    isRolling = true;
+
+                    // update animator and move player forward
+                    if (_hasAnimator)
+                    {
+                        _animator.SetLayerWeight(3, 1f);
+                        _animator.SetTrigger(_animDodgeRoll);
+                    }
+
+                    // Player gets iframes after small delay
+                    StartCoroutine(DelayIFrames(0.2f));
+
+                    // reset the dodge timeout timer
+                    _dodgeTimeoutDelta = DodgeTimeout;
+                }
+                else 
+                {
+                    _input.dodgeroll = false;
+                }
+
+                // dodge timeout
+                if (_dodgeTimeoutDelta >= 0.0f)
+                {
+                    _dodgeTimeoutDelta -= Time.deltaTime;
+                }
+            }
+            else
+            {
+                // if we are not grounded, do not roll
+                _input.dodgeroll = false;
             }
         }
 
@@ -603,14 +673,17 @@ namespace StarterAssets
                 if(HitsRemaining == 0)
                 {
                     // TODO: Game Over
+                    GameOver = true;
                 }
                 else
                 {
-                    //HitsRemaining--;
+                    HitsRemaining--;
                     _animator.SetLayerWeight(2, 1f);
                     _animator.SetTrigger(_animFall);
                     _controller.detectCollisions = false;
                     isHurt = true;
+
+                    _healthVisual.TakeDamage(3);
 
                     // Leave Combat Mode
                     currentCamStyle = CameraStyle.Exploration;
@@ -625,7 +698,7 @@ namespace StarterAssets
 
         private void OnFootstep(AnimationEvent animationEvent)
         {
-            if (animationEvent.animatorClipInfo.weight > 0.5f && !isHurt)
+            if (animationEvent.animatorClipInfo.weight > 0.5f && !isHurt && !isRolling)
             {
                 if (FootstepAudioClips.Length > 0)
                 {
@@ -657,7 +730,17 @@ namespace StarterAssets
             {
                 // TODO: Play fall sound, below is placeholder
                 AudioSource.PlayClipAtPoint(LandingAudioClip, transform.TransformPoint(_controller.center), FootstepAudioVolume);
-                StartCoroutine(iFrameAnimation());
+                StartCoroutine(iFrameAnimation(8, 1.75f));
+            }
+        }
+
+        private void OnRoll(AnimationEvent animationEvent)
+        {
+            if (animationEvent.animatorClipInfo.weight > 0.5f)
+            {
+                // TODO: Play fall sound, below is placeholder
+                AudioSource.PlayClipAtPoint(LandingAudioClip, transform.TransformPoint(_controller.center), FootstepAudioVolume);
+                //StartCoroutine(iFrameAnimation(3, 0.01f));
             }
         }
 
@@ -667,15 +750,25 @@ namespace StarterAssets
             {
                 _animator.SetLayerWeight(2, 0f);
                 isHurt = false;
-                StartCoroutine(ExtendIFrames());
+                StartCoroutine(ExtendIFrames(0.85f));
             }
         }
 
-        private IEnumerator iFrameAnimation()
+        private void OnRollGetUp(AnimationEvent animationEvent)
         {
-            yield return new WaitForSeconds(1.75f);
+            if (animationEvent.animatorClipInfo.weight > 0.5f)
+            {
+                _animator.SetLayerWeight(3, 0f);
+                isRolling = false;
+                StartCoroutine(ExtendIFrames(0.01f));
+            }
+        }
 
-            int count = 8;
+        // Flickers the Player model (count) times, after a delay
+        private IEnumerator iFrameAnimation(int count, float delay)
+        {
+            yield return new WaitForSeconds(delay);
+
             while(count > 0)
             {
                 yield return new WaitForSeconds(0.1f);
@@ -686,10 +779,18 @@ namespace StarterAssets
             }
         }
 
-        private IEnumerator ExtendIFrames()
+        // Makes the Player invincible for a longer amount of time
+        private IEnumerator ExtendIFrames(float delay)
         {
-            yield return new WaitForSeconds(0.85f);
+            yield return new WaitForSeconds(delay);
             _controller.detectCollisions = true;
+        }
+
+        // Delays when the invincibility frames are active
+        private IEnumerator DelayIFrames(float delay)
+        {
+            yield return new WaitForSeconds(delay);
+            _controller.detectCollisions = false;
         }
     }
 }
