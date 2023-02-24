@@ -39,8 +39,8 @@ ModelImporter:
       name: Sleeping
       takeName: Take 001
       internalID: 0
-      firstFrame: 55
-      lastFrame: 75
+      firstFrame: 60
+      lastFrame: 69
       wrapMode: 0
       orientationOffsetY: 0
       level: 0

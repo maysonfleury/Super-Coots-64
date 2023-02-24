@@ -44,7 +44,7 @@ public class PlayerHealthVisual : MonoBehaviour
 
         while (pending_damage > 0)
         {
-            if(_current_health > 1)
+            if(_current_health > 0)
             {
                 yield return new WaitForSeconds(0.2f);
                 spriteRenderer.sprite = healthSprites[_current_health - 1];
