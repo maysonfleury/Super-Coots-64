@@ -18,13 +18,12 @@ public class BulletProjectile : MonoBehaviour
         bulletRigidbody.velocity = transform.forward * speed;
     }
 
-    private void OnCollisionEnter(Collision collision)
+    private void OnTriggerEnter(Collider other)
     {
-        if (collision.gameObject.GetComponent<BulletTarget>() != null)
+        if (other.GetComponent<BulletTarget>() != null)
         {
             // Hit Target
-            //Instantiate(vfxHit, transform.position, Quaternion.identity);
-            Debug.Log("Bullet Hit");
+            Instantiate(vfxHit, transform.position, Quaternion.identity);
         } else {
             // Hit something else
         }

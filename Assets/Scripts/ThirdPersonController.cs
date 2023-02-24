@@ -97,9 +97,6 @@ namespace StarterAssets
         [Tooltip("Bullet Spawn Position")]
         [SerializeField] private Transform bulletSpawnPos;
 
-        [Tooltip("Current Item Held")]
-        [SerializeField] private GameObject heldPickup;
-
         [Tooltip("Player Mesh Renderer")]
         [SerializeField] private SkinnedMeshRenderer playerMesh;
 
@@ -158,7 +155,7 @@ namespace StarterAssets
         private bool canShoot;
         private bool isCrouching;
         private bool isHurt;
-        public bool isRolling;
+        private bool isRolling;
 
         // timeout deltatime
         private float _jumpTimeoutDelta;
@@ -635,23 +632,11 @@ namespace StarterAssets
                         mouseWorldPosition = rcHit.point;
                     }
 
-                    // Shoots held item
+                    // Shoots projectile
                     Vector3 aimDir = (mouseWorldPosition - bulletSpawnPos.position).normalized;
-                    if(heldPickup != null)
-                    {
-                        heldPickup.gameObject.GetComponent<Pickup>().Launch(Quaternion.LookRotation(aimDir, Vector3.up));
-                        heldPickup = null;
-                    } else {
-                        //Instantiate(bulletPrefab, bulletSpawnPos.position, Quaternion.LookRotation(aimDir, Vector3.up));
-                    }
+                    Instantiate(bulletPrefab, bulletSpawnPos.position, Quaternion.LookRotation(aimDir, Vector3.up));
                     _input.shoot = false;
                 }
-            }
-
-            if(heldPickup != null)
-            {
-                heldPickup.transform.position = bulletSpawnPos.position;
-                heldPickup.transform.forward = transform.forward;
             }
         }
 
@@ -710,12 +695,8 @@ namespace StarterAssets
                     Sensitivity = 1f;
                     Crosshair.SetActive(false);
                 }
-            }
-
-            if (other.GetComponent<Pickup>() != null)
-            {
-                heldPickup = other.gameObject;
-                other.gameObject.transform.localScale = other.gameObject.transform.localScale / 4.0f;
+            } else  {
+                // Player didn't get hit :D
             }
         }
 
