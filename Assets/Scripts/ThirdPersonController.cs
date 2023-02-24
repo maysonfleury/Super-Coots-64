@@ -97,6 +97,9 @@ namespace StarterAssets
         [Tooltip("Bullet Spawn Position")]
         [SerializeField] private Transform bulletSpawnPos;
 
+        [Tooltip("Pickup Position")]
+        [SerializeField] private Transform pickupPos;
+
         [Tooltip("Current Item Held")]
         [SerializeField] private GameObject heldPickup;
 
@@ -236,6 +239,8 @@ namespace StarterAssets
             HitsRemaining = 8;
             _healthVisual = GetComponent<PlayerHealthVisual>();
             _healthVisual.SetCurrentHealth(8);
+
+            heldPickup = null;
 
             GameOver = false;
         }
@@ -639,6 +644,7 @@ namespace StarterAssets
                     Vector3 aimDir = (mouseWorldPosition - bulletSpawnPos.position).normalized;
                     if(heldPickup != null)
                     {
+                        heldPickup.transform.position = bulletSpawnPos.position;
                         heldPickup.gameObject.GetComponent<Pickup>().Launch(Quaternion.LookRotation(aimDir, Vector3.up));
                         heldPickup = null;
                     } else {
@@ -648,10 +654,10 @@ namespace StarterAssets
                 }
             }
 
-            if(heldPickup != null)
+            if(heldPickup)
             {
-                heldPickup.transform.position = bulletSpawnPos.position;
-                heldPickup.transform.forward = transform.forward;
+                heldPickup.transform.position = pickupPos.position;
+                heldPickup.transform.rotation = pickupPos.rotation;
             }
         }
 
@@ -714,8 +720,11 @@ namespace StarterAssets
 
             if (other.GetComponent<Pickup>() != null)
             {
-                heldPickup = other.gameObject;
-                other.gameObject.transform.localScale = other.gameObject.transform.localScale / 4.0f;
+                if(!heldPickup)
+                {
+                    heldPickup = other.gameObject;
+                    other.gameObject.transform.localScale = other.gameObject.transform.localScale / 6.0f;
+                }
             }
         }
 

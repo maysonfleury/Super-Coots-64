@@ -147,6 +147,7 @@ MonoBehaviour:
   pickupName: Bobomb
   torque: 10
   speed: 25
+  _collider: {fileID: 6071461601972531391}
 --- !u!1 &5490775291245683157
 GameObject:
   m_ObjectHideFlags: 0

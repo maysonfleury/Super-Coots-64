@@ -1207,9 +1207,6 @@ AnimatorStateTransition:
   - m_ConditionMode: 1
     m_ConditionEvent: DodgeRoll
     m_EventTreshold: 0
-  - m_ConditionMode: 1
-    m_ConditionEvent: Aim
-    m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 246511937050178961}
   m_Solo: 0
