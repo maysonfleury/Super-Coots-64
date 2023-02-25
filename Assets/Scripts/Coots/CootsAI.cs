@@ -5,15 +5,19 @@ using UnityEngine;
 public class CootsAI : MonoBehaviour
 {
     [SerializeField] private float WalkSpeed;
+    [SerializeField] private Collider CombatTriggerCollider;
+    [SerializeField] private Transform _target;
+    [SerializeField] private bool isAttacking;
+
+    public AudioClip[] CootsAudioClips;
+    [Range(0, 1)] public float CootsAudioVolume = 0.5f;
+
     private Animator _animator;
     private bool _hasAnimator;
-
     private int _animSlam;
     private int _animScratch;
     private int _animSleep;
     private int _animWalk;
-
-    private Transform _target;
 
     // Start is called before the first frame update
     void Start()
@@ -52,10 +56,10 @@ public class CootsAI : MonoBehaviour
         // Check Distance between Coots and Toy
         float dist = Vector3.Distance(_target.position, transform.position);
         // If too far away, target player again
-        if(dist > 25f)
+        if(dist > 20f)
         {
-            Debug.Log("over 25f");
-            //SetTarget();
+            Debug.Log("Coots is no longer interested in the toy...");
+            CombatTriggerCollider.enabled = true;
         }
     }
 
@@ -84,11 +88,27 @@ public class CootsAI : MonoBehaviour
     // Makes Coots walk towards a target object
     private void Walk()
     {
-        // Walk Towards Player
-        // Walk Towards Toy
-        transform.LookAt(_target);
+        // Check Distance between Coots and Target
+        float dist = Vector3.Distance(_target.position, transform.position);
+        // Stop walking if too close
+        if(dist < 3f)
+        {
+            Debug.Log("Coots can hit Lud!!");
+            _animator.SetBool(_animWalk, false);
+        }
+        else {
+            _animator.SetBool(_animWalk, true);
+            transform.Translate(Vector3.forward * WalkSpeed * Time.deltaTime);
+            transform.LookAt(_target);
+        }
+    }
 
-        _animator.SetBool(_animWalk, true);
-        transform.Translate(Vector3.forward * WalkSpeed * Time.deltaTime);
+    private void OnSlam(AnimationEvent animationEvent)
+    {
+        if (animationEvent.animatorClipInfo.weight > 0.5f)
+        {
+            // TODO: Change audio clip
+            AudioSource.PlayClipAtPoint(CootsAudioClips[0], transform.TransformPoint(transform.position), CootsAudioVolume);
+        }
     }
 }

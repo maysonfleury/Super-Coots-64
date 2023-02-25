@@ -17,7 +17,7 @@ public class TriggerDistraction : MonoBehaviour
         var toy = other.GetComponent<Pickup>();
         if (!toy.GetAttachState())
         {
-            _cootsAI.SetTarget(transform);
+            _cootsAI.SetTarget(toy.transform);
             _cootsAI.DistractCoots();
         }
     }

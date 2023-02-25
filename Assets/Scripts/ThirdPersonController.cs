@@ -177,6 +177,7 @@ namespace StarterAssets
         private int _animCrouch;
         private int _animDodgeRoll;
         private int _animAim;
+        private int _animThrow;
         private int _animFall;
 
         // user interface
@@ -279,6 +280,7 @@ namespace StarterAssets
             _animCrouch = Animator.StringToHash("Crouch");
             _animDodgeRoll = Animator.StringToHash("DodgeRoll");
             _animAim = Animator.StringToHash("Aim");
+            _animThrow = Animator.StringToHash("Throw");
             _animFall = Animator.StringToHash("PlayerHurt");
         }
 
@@ -595,7 +597,8 @@ namespace StarterAssets
                 if (_hasAnimator)
                 {
                     _animator.SetBool(_animAim, true);
-                    _animator.SetLayerWeight(1, Mathf.Lerp(_animator.GetLayerWeight(1), 1f, Time.deltaTime * 10f));
+                    //_animator.SetLayerWeight(1, Mathf.Lerp(_animator.GetLayerWeight(1), 1f, Time.deltaTime * 10f));
+                    _animator.SetLayerWeight(4, 1f);
                 }
 
                 // Change Camera
@@ -612,7 +615,8 @@ namespace StarterAssets
                 if (_hasAnimator)
                 {
                     _animator.SetBool(_animAim, false);
-                    _animator.SetLayerWeight(1, Mathf.Lerp(_animator.GetLayerWeight(1), 0f, Time.deltaTime * 10f));
+                    //_animator.SetLayerWeight(1, Mathf.Lerp(_animator.GetLayerWeight(1), 0f, Time.deltaTime * 2f));
+                    _animator.SetLayerWeight(4, Mathf.Lerp(_animator.GetLayerWeight(4), 0f, Time.deltaTime * 2f));
                 }
 
                 // Change Camera
@@ -644,6 +648,11 @@ namespace StarterAssets
                     if (Physics.Raycast(ray, out RaycastHit rcHit, 999f, aimColliderMask))
                     {
                         mouseWorldPosition = rcHit.point;
+                    }
+
+                    if (_hasAnimator)
+                    {
+                        _animator.SetTrigger(_animThrow);
                     }
 
                     // Shoots held item

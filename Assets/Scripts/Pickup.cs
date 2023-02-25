@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Pickup : MonoBehaviour
 {
+    //[SerializeField] private string _pickupName;
     [SerializeField] private float torque = 10f;
     [SerializeField] private float speed = 25f;
     [SerializeField] private GameObject _collider;
@@ -31,7 +32,7 @@ public class Pickup : MonoBehaviour
         if (other.CompareTag("Coots"))
         {
             // Coots Hit Pickup
-            Destroy(gameObject);
+            // TODO: play pickup death sound
         }
 
         if (other.GetComponent<BulletTarget>() != null)

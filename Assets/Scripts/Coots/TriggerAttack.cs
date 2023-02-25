@@ -21,6 +21,7 @@ public class TriggerAttack : MonoBehaviour
 
         if (other.CompareTag("Tower"))
         {
+            _cootsAI.SetTarget(other.transform);
             _cootsAI.Attack();
         }
 
