@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 938518626}
   - component: {fileID: 938518627}
   - component: {fileID: 938518628}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: DistractionTrigger
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -241,7 +241,7 @@ GameObject:
   - component: {fileID: 8262629401748750317}
   m_Layer: 0
   m_Name: coll
-  m_TagString: Untagged
+  m_TagString: Coots
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -330,6 +330,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7034188602073663596}
+  - component: {fileID: 1563887226}
   m_Layer: 0
   m_Name: Character1_Reference
   m_TagString: Coots
@@ -353,6 +354,22 @@ Transform:
   m_Father: {fileID: 339660370783640112}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!54 &1563887226
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 740777788148119195}
+  serializedVersion: 2
+  m_Mass: 10
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 1
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 84
+  m_CollisionDetection: 0
 --- !u!1 &1152191301553635466
 GameObject:
   m_ObjectHideFlags: 0
@@ -390,6 +407,7 @@ Transform:
   - {fileID: 233076895306422223}
   - {fileID: 938518626}
   - {fileID: 1349062768581682424}
+  - {fileID: 1461420712986534783}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: -10.095, z: 0}
@@ -426,9 +444,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   WalkSpeed: 5
-  CombatTriggerCollider: {fileID: 0}
+  CombatTriggerCollider: {fileID: 233076895306422216}
   _target: {fileID: 0}
   isAttacking: 0
+  _hurtBoxes:
+  - {fileID: 2685777239617586576}
+  - {fileID: 6594576990848569837}
+  - {fileID: 6968657100760680731}
+  - {fileID: 1861298816915457401}
+  CootsAudioClips:
+  - {fileID: 8300000, guid: cba7432f5f204814292a4fe1871228f9, type: 3}
+  - {fileID: 8300000, guid: 19ba6806e98b59a47bf1f4fb3607dc66, type: 3}
+  - {fileID: 8300000, guid: 4597f0c51ea82f043984f3651a469c1e, type: 3}
+  - {fileID: 8300000, guid: cc2daeee51646b146b0e6e50aab6cdb7, type: 3}
+  - {fileID: 8300000, guid: b3c4a520568acd54ca2958522781291c, type: 3}
+  - {fileID: 8300000, guid: eeeaa31f10d10b74f8ef87a9b50bdc77, type: 3}
+  - {fileID: 8300000, guid: 735430ffca1932449b700323aec5d241, type: 3}
+  - {fileID: 8300000, guid: 867b2438c8ccc284699eaf352d70d483, type: 3}
+  CootsAudioVolume: 0.5
 --- !u!1 &1171011827490881058
 GameObject:
   m_ObjectHideFlags: 0
@@ -589,10 +622,10 @@ BoxCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1647722290432125579}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.15, y: 0.069, z: 0.165}
+  m_Size: {x: 0.15, y: 0.069, z: 0.17}
   m_Center: {x: -0.00051246304, y: -0.017552229, z: 0.023158759}
 --- !u!1 &1656787350016744937
 GameObject:
@@ -1355,7 +1388,7 @@ GameObject:
   - component: {fileID: 2685777239617586576}
   m_Layer: 0
   m_Name: Character1_RightHand
-  m_TagString: Untagged
+  m_TagString: Coots
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1411,7 +1444,7 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.15, y: 0.069, z: 0.165}
+  m_Size: {x: 0.15, y: 0.069, z: 0.17}
   m_Center: {x: -0.0082732495, y: -0.01755224, z: 0.022759253}
 --- !u!1 &3617838810461208108
 GameObject:
@@ -1542,6 +1575,65 @@ Transform:
   m_Father: {fileID: 7034188602073663596}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3953173534621322133
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1461420712986534783}
+  - component: {fileID: 532527107349134293}
+  - component: {fileID: 7559164590043979572}
+  m_Layer: 2
+  m_Name: BodySlamTrigger
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1461420712986534783
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3953173534621322133}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.021, y: 0.258, z: -0.384}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 339660370783640112}
+  m_RootOrder: 7
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &532527107349134293
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3953173534621322133}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.58, y: 0.61, z: 0.84}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &7559164590043979572
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3953173534621322133}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d90b401d9ee9464397c5e6547a2e06b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _cootsAI: {fileID: 0}
 --- !u!1 &4337949245656697439
 GameObject:
   m_ObjectHideFlags: 0
@@ -1555,7 +1647,7 @@ GameObject:
   - component: {fileID: 1268614359978931696}
   m_Layer: 0
   m_Name: Character1_Head
-  m_TagString: Untagged
+  m_TagString: Coots
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1622,7 +1714,7 @@ GameObject:
   - component: {fileID: 4137167484649321988}
   m_Layer: 0
   m_Name: TeethHurt
-  m_TagString: Untagged
+  m_TagString: Coots
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1961,7 +2053,7 @@ GameObject:
   - component: {fileID: 1349062768581682424}
   - component: {fileID: 485532418775687590}
   - component: {fileID: 1651819122}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: AttackTrigger
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1976,7 +2068,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5201206446964350253}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.021, y: 0.251, z: 0.476}
+  m_LocalPosition: {x: -0.021, y: 0.194, z: 0.247}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1994,7 +2086,7 @@ SphereCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.5
+  m_Radius: 0.3
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &1651819122
 MonoBehaviour:
@@ -2266,6 +2358,8 @@ GameObject:
   m_Component:
   - component: {fileID: 8581541127808607655}
   - component: {fileID: 6519480096044686225}
+  - component: {fileID: 1861298816915457401}
+  - component: {fileID: 2978955179648439065}
   m_Layer: 0
   m_Name: Character1_Spine1
   m_TagString: Untagged
@@ -2303,6 +2397,31 @@ CapsuleCollider:
   m_Height: 0.28
   m_Direction: 1
   m_Center: {x: 0, y: -0.085, z: 0}
+--- !u!65 &1861298816915457401
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5968452417602792291}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.37, y: 0.22, z: 0.78}
+  m_Center: {x: 0, y: -0.21, z: -0.09}
+--- !u!114 &2978955179648439065
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5968452417602792291}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb045920efe161e4f83e8e21796fd6f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6036869246764815755
 GameObject:
   m_ObjectHideFlags: 0
@@ -2958,7 +3077,7 @@ GameObject:
   - component: {fileID: 2920107739822184160}
   m_Layer: 0
   m_Name: chin
-  m_TagString: Untagged
+  m_TagString: Coots
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

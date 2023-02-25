@@ -105,6 +105,8 @@ namespace StarterAssets
 
         [Tooltip("Player Mesh Renderer")]
         [SerializeField] private SkinnedMeshRenderer playerMesh;
+        [SerializeField] private GameObject LudCheeks;
+        [SerializeField] private GameObject LudHair;
 
         [Tooltip("How Many Hits the Player can take")]
         [SerializeField] private int HitsRemaining;
@@ -710,20 +712,20 @@ namespace StarterAssets
         {
             if (other.GetComponent<HurtPlayer>() != null)
             {
-                if(HitsRemaining == 0)
+                if(HitsRemaining <= 0)
                 {
                     // TODO: Game Over
                     GameOver = true;
                 }
                 else
                 {
-                    HitsRemaining--;
                     _animator.SetLayerWeight(2, 1f);
                     _animator.SetTrigger(_animFall);
                     _controller.detectCollisions = false;
                     isHurt = true;
 
                     _healthVisual.TakeDamage(3);
+                    HitsRemaining -= 3;
 
                     // Leave Combat Mode
                     currentCamStyle = CameraStyle.Exploration;
@@ -820,8 +822,12 @@ namespace StarterAssets
             {
                 yield return new WaitForSeconds(0.1f);
                 playerMesh.enabled = false;
+                LudCheeks.SetActive(false);
+                LudHair.SetActive(false);
                 yield return new WaitForSeconds(0.05f);
                 playerMesh.enabled = true;
+                LudCheeks.SetActive(true);
+                LudHair.SetActive(true);
                 count--;
             }
         }

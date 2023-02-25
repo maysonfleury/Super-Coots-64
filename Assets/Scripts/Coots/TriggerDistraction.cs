@@ -14,10 +14,21 @@ public class TriggerDistraction : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        var toy = other.GetComponent<Pickup>();
-        if (!toy.GetAttachState())
+        if (other.GetComponent<Pickup>() != null)
         {
-            _cootsAI.SetTarget(toy.transform);
+            var toy = other.GetComponent<Pickup>();
+            // Only target toy if player has thrown it
+            if (!toy.GetAttachState() && toy.GetActivatedState())
+            {
+                _cootsAI.SetTarget(toy.transform);
+                _cootsAI.DistractCoots();
+            }
+        }
+
+        if (other.GetComponent<DestructibleTower>() != null)
+        {
+            var tower = other.GetComponent<DestructibleTower>();
+            _cootsAI.SetTarget(tower.GetAttackPoint());
             _cootsAI.DistractCoots();
         }
     }

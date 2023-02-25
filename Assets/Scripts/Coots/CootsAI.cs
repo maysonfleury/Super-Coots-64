@@ -8,6 +8,7 @@ public class CootsAI : MonoBehaviour
     [SerializeField] private Collider CombatTriggerCollider;
     [SerializeField] private Transform _target;
     [SerializeField] private bool isAttacking;
+    public Collider[] _hurtBoxes;
 
     public AudioClip[] CootsAudioClips;
     [Range(0, 1)] public float CootsAudioVolume = 0.5f;
@@ -19,11 +20,18 @@ public class CootsAI : MonoBehaviour
     private int _animSleep;
     private int _animWalk;
 
+    private float _rotationVelocity;
+
     // Start is called before the first frame update
     void Start()
     {
         _hasAnimator = TryGetComponent(out _animator);
         AssignAnimationIDs();
+
+        foreach(Collider col in _hurtBoxes)
+        {
+            col.enabled = false;
+        }
     }
 
     private void AssignAnimationIDs()
@@ -37,7 +45,12 @@ public class CootsAI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Walk();
+        if(!_target)
+        {
+            CombatTriggerCollider.enabled = true;
+        } else {
+            Walk();
+        }
     }
 
     // Called when Player enters Coots' Aggro Range
@@ -56,27 +69,48 @@ public class CootsAI : MonoBehaviour
         // Check Distance between Coots and Toy
         float dist = Vector3.Distance(_target.position, transform.position);
         // If too far away, target player again
-        if(dist > 20f)
+        if(dist > 10f)
         {
             Debug.Log("Coots is no longer interested in the toy...");
             CombatTriggerCollider.enabled = true;
+            SetTarget(null);
         }
     }
 
     // Called when either the Player, a Toy, or a Tower are directly in front of Coots
     public void Attack()
     {
-        //_animator.SetBool(_animWalk, false);
         Debug.Log("Coots Attacks!");
+        if (!isAttacking)
+        {
+            isAttacking = true;
 
-        var num = Random.Range(0, 2);   // Range(inclusive, exclusive)
-        if(num == 0)
-        {
-            _animator.SetTrigger(_animSlam);
+            var num = Random.Range(0, 2);   // Range(inclusive, exclusive)
+            if(num == 0)
+            {
+                _animator.SetTrigger(_animSlam);
+            }
+            else
+            {
+                _animator.SetTrigger(_animScratch);
+            }
         }
-        else
+    }
+
+    public void BodySlam()
+    {
+        StartCoroutine(BodySlamRoutine());
+    }
+
+    private IEnumerator BodySlamRoutine()
+    {
+        if (!isAttacking)
         {
-            _animator.SetTrigger(_animScratch);
+            isAttacking = true;
+
+            _animator.SetBool(_animSleep, true);
+            yield return new WaitForSeconds(1f);
+            _animator.SetBool(_animSleep, false);
         }
     }
 
@@ -88,18 +122,24 @@ public class CootsAI : MonoBehaviour
     // Makes Coots walk towards a target object
     private void Walk()
     {
-        // Check Distance between Coots and Target
+        // Check Distance between Coots and Target and stop walking if too close
         float dist = Vector3.Distance(_target.position, transform.position);
-        // Stop walking if too close
-        if(dist < 3f)
+        if(dist > 2f && !isAttacking)
         {
-            Debug.Log("Coots can hit Lud!!");
-            _animator.SetBool(_animWalk, false);
+            _animator.SetBool(_animWalk, true);
+
+            Vector3 difference = _target.position - transform.position;
+            float targetRotation = Mathf.Atan2(difference.x, difference.z) * Mathf.Rad2Deg;
+            float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetRotation, ref _rotationVelocity, 0.12f);
+            transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
+
+            Vector3 targetPos = new Vector3(_target.position.x, 11.032f, _target.position.z);
+            transform.position = Vector3.MoveTowards(transform.position, targetPos, WalkSpeed * Time.deltaTime);
+            //transform.Translate(Vector3.forward * WalkSpeed * Time.deltaTime);
         }
         else {
-            _animator.SetBool(_animWalk, true);
-            transform.Translate(Vector3.forward * WalkSpeed * Time.deltaTime);
-            transform.LookAt(_target);
+            Debug.Log("Coots can hit Lud!!");
+            _animator.SetBool(_animWalk, false);
         }
     }
 
@@ -107,8 +147,74 @@ public class CootsAI : MonoBehaviour
     {
         if (animationEvent.animatorClipInfo.weight > 0.5f)
         {
-            // TODO: Change audio clip
-            AudioSource.PlayClipAtPoint(CootsAudioClips[0], transform.TransformPoint(transform.position), CootsAudioVolume);
+            PlayClipAt(CootsAudioClips[0], transform.position, CootsAudioVolume);
         }
+    }
+
+    private void OnScratchStart(AnimationEvent animationEvent)
+    {
+        if (animationEvent.animatorClipInfo.weight > 0.5f)
+        {
+            PlayClipAt(CootsAudioClips[1], transform.position, CootsAudioVolume);
+        }
+    }
+
+    private void OnScratch(AnimationEvent animationEvent)
+    {
+        if (animationEvent.animatorClipInfo.weight > 0.5f)
+        {
+            var num = Random.Range(2, 4);   // Either [2] or [3]
+            PlayClipAt(CootsAudioClips[num], transform.position, CootsAudioVolume);
+        }
+    }
+
+    private void OnSmallStep(AnimationEvent animationEvent)
+    {
+        if (animationEvent.animatorClipInfo.weight > 0.5f)
+        {
+            var num = Random.Range(4, 6);   // Either [4] or [5]
+            PlayClipAt(CootsAudioClips[num], transform.position, CootsAudioVolume);
+        }
+    }
+
+    private void OnBigStep(AnimationEvent animationEvent)
+    {
+        if (animationEvent.animatorClipInfo.weight > 0.5f)
+        {
+            var num = Random.Range(6, 8);   // Either [6] or [7]
+            PlayClipAt(CootsAudioClips[num], transform.position, CootsAudioVolume);
+        }
+    }
+
+    private void OnAttackStarted(AnimationEvent animationEvent)
+    {
+        foreach(Collider col in _hurtBoxes)
+        {
+            col.enabled = true;
+        }
+    }
+
+    private void OnAttackFinished(AnimationEvent animationEvent)
+    {
+        isAttacking = false;
+        foreach(Collider col in _hurtBoxes)
+        {
+            col.enabled = false;
+        }
+    }
+
+    AudioSource PlayClipAt(AudioClip clip, Vector3 pos, float vol)
+    {
+        GameObject tempGO = new GameObject("TempAudio");
+        tempGO.transform.position = pos;
+        AudioSource aSource = tempGO.AddComponent<AudioSource>();
+        aSource.clip = clip;
+        aSource.volume = vol;
+        aSource.rolloffMode = AudioRolloffMode.Linear;
+        aSource.maxDistance = 35f;
+        aSource.spatialBlend = 1.0f;
+        aSource.Play(); // start the sound
+        Destroy(tempGO, clip.length); // destroy object after clip duration
+        return aSource; // return the AudioSource reference
     }
 }

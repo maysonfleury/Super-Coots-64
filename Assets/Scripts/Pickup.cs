@@ -10,6 +10,7 @@ public class Pickup : MonoBehaviour
     [SerializeField] private GameObject _collider;
     private Rigidbody _rigidbody;
     private bool isAttached;
+    private bool isActivated;
 
     private void Awake()
     {
@@ -17,6 +18,7 @@ public class Pickup : MonoBehaviour
         _rigidbody.isKinematic = true;
         _collider.SetActive(false);
         isAttached = false;
+        isActivated = false;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -27,18 +29,14 @@ public class Pickup : MonoBehaviour
             _rigidbody.isKinematic = true;
             _collider.SetActive(false);
             isAttached = true;
+            isActivated = true;
         }
 
         if (other.CompareTag("Coots"))
         {
             // Coots Hit Pickup
             // TODO: play pickup death sound
-        }
-
-        if (other.GetComponent<BulletTarget>() != null)
-        {
-            // Hit target
-            Debug.Log("Hitit");
+            Destroy(gameObject);
         }
     }
 
@@ -56,6 +54,11 @@ public class Pickup : MonoBehaviour
     public bool GetAttachState()
     {
         return isAttached;
+    }
+
+    public bool GetActivatedState()
+    {
+        return isActivated;
     }
 
     private IEnumerator LaunchRoutine()
