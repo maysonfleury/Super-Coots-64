@@ -4,21 +4,18 @@ using UnityEngine;
 
 public class Pickup : MonoBehaviour
 {
-    [SerializeField] private string pickupName;
     [SerializeField] private float torque = 10f;
     [SerializeField] private float speed = 25f;
     [SerializeField] private GameObject _collider;
     private Rigidbody _rigidbody;
+    private bool isAttached;
 
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody>();  
         _rigidbody.isKinematic = true;
         _collider.SetActive(false);
-    }
-
-    private void Update() {
-        
+        isAttached = false;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -27,6 +24,14 @@ public class Pickup : MonoBehaviour
         {
             // Player walked into Pickup
             _rigidbody.isKinematic = true;
+            _collider.SetActive(false);
+            isAttached = true;
+        }
+
+        if (other.CompareTag("Coots"))
+        {
+            // Coots Hit Pickup
+            Destroy(gameObject);
         }
 
         if (other.GetComponent<BulletTarget>() != null)
@@ -40,15 +45,16 @@ public class Pickup : MonoBehaviour
     {
         transform.rotation = launchDir;
         _rigidbody.isKinematic = false;
+        isAttached = false;
         _collider.SetActive(true);
         _rigidbody.velocity = transform.forward * speed;
         _rigidbody.AddTorque(transform.right * torque);
         StartCoroutine(LaunchRoutine());
     }
 
-    public string GetName()
+    public bool GetAttachState()
     {
-        return pickupName;
+        return isAttached;
     }
 
     private IEnumerator LaunchRoutine()

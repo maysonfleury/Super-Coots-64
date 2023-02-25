@@ -256,12 +256,9 @@ namespace StarterAssets
                 DodgeRoll();
                 if(!isHurt)
                 {
-                    if(!isRolling)
-                    {
-                        Crouch();
-                        Aim();
-                        Shoot();
-                    }
+                    Crouch();
+                    Aim();
+                    Shoot();
                     Move();
                 }
             }
@@ -422,6 +419,9 @@ namespace StarterAssets
 
         private void JumpAndGravity()
         {
+            // No jumping while rolling
+            if(isRolling) _input.jump = false;
+
             if (Grounded)
             {
                 // reset the fall timeout timer
@@ -498,6 +498,9 @@ namespace StarterAssets
 
         private void Crouch()
         {
+            // No crouching while rolling
+            if(isRolling) _input.crouch = false;
+
             if (_input.crouch)
             {
                 if (_hasAnimator)
@@ -584,6 +587,9 @@ namespace StarterAssets
 
         private void Aim()
         {
+            // No aiming while rolling
+            if(isRolling) _input.ads = false;
+
             if (_input.ads && Grounded)
             {
                 if (_hasAnimator)
