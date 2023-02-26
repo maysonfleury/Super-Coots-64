@@ -15,17 +15,16 @@ public class CallingSlime : MonoBehaviour
     public AudioClip[] CallAudioClips;
     [Range(0, 1)] public float CallAudioVolume = 0.5f;
 
+    [SerializeField] private SlimeEgg slimeEgg;
     [SerializeField] private GameObject SlimePhone;
     [SerializeField] private GameObject BlankPhone;
+    [SerializeField] private Collider _callArea;
 
     private int call_counter = 0; // for the text
     private int current_sprite = 0; // also for the text
 
-    private bool isCalling;
-
-    private AudioSource audio;
-
-    [SerializeField] private Collider _callArea;
+    private AudioSource callAudio;
+    private Coroutine co;
 
     void Start()
     {
@@ -41,8 +40,8 @@ public class CallingSlime : MonoBehaviour
 
     public void CallSlime()
     {
-        StartCoroutine(CallSlimeAnimation());
-        audio = PlayClipAt(CallAudioClips[0], transform.position, CallAudioVolume);
+        co = StartCoroutine(CallSlimeAnimation());
+        callAudio = PlayClipAt(CallAudioClips[0], transform.position, CallAudioVolume);
         SlimePhone.SetActive(true);
         BlankPhone.SetActive(false);
     }
@@ -56,9 +55,10 @@ public class CallingSlime : MonoBehaviour
 
         call_counter = 0;
         slider.value = 0.0f;
+        UpdateSlider(0f);
         SliderObject.SetActive(false);
 
-        if(audio.gameObject != null) Destroy(audio.gameObject);
+        if(callAudio) Destroy(callAudio.gameObject);
         PlayClipAt(CallAudioClips[1], transform.position, CallAudioVolume);
 
         SlimePhone.SetActive(false);
@@ -76,9 +76,11 @@ public class CallingSlime : MonoBehaviour
         slider.value = 0.0f;
         SliderObject.SetActive(false);
 
-        Destroy(audio.gameObject);
+        if(callAudio) Destroy(callAudio.gameObject);
         PlayClipAt(CallAudioClips[2], transform.position, CallAudioVolume);
         WinScreen.enabled = true;
+        //slimeEgg.SummonSlime();
+        Time.timeScale = 0.0f;
     }
 
     public void HidePhones()
@@ -115,14 +117,14 @@ public class CallingSlime : MonoBehaviour
         activeSprite.enabled = true;
         SliderObject.SetActive(true);
 
-        yield return new WaitForSeconds(0.5f); // play dial sound maybe?
+        yield return new WaitForSeconds(0.5f);
         
         float value = 0f;
         while (value <= 100.0f)
         {
             yield return new WaitForSeconds(0.1f);
             UpdateSlider(value);
-            value += 0.95f;
+            value += 0.75f;
         }         
 
         if(value >= 100f) CompleteCall();
@@ -142,7 +144,6 @@ public class CallingSlime : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            isCalling = true;
             CallSlime();
         }
     }
@@ -151,9 +152,8 @@ public class CallingSlime : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            isCalling = false;
-            StopCoroutine(CallSlimeAnimation());
             EndCall();
+            if(co != null) StopCoroutine(co);
         }
     }
 

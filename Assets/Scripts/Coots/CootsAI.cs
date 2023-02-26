@@ -24,6 +24,7 @@ public class CootsAI : MonoBehaviour
     private int _animWalk;
 
     private float _rotationVelocity;
+    private bool isGettingUp;
     private Transform _prevTarget;
     private AudioSource purrAudio;
 
@@ -35,6 +36,7 @@ public class CootsAI : MonoBehaviour
 
         isAttacking = false;
         isDistracted = false;
+        isGettingUp = true;
 
         foreach(Collider col in _hurtBoxes)
         {
@@ -72,8 +74,11 @@ public class CootsAI : MonoBehaviour
             CombatTriggerCollider.enabled = true;
         }
         else {
-            Walk();
-            WhileDistracted();
+            if(!isGettingUp)
+            {
+                Walk();
+                WhileDistracted();
+            }
         }
     }
 
@@ -86,6 +91,13 @@ public class CootsAI : MonoBehaviour
         if(purrAudio) Destroy(purrAudio.gameObject);
         var num = Random.Range(9, 12);   // Between [9] and [11]
         PlayClipAt(CootsAudioClips[num], transform.position, CootsAudioVolume);
+        StartCoroutine(StartCombatRoutine());
+    }
+
+    private IEnumerator StartCombatRoutine()
+    {
+        yield return new WaitForSeconds(1f);
+        isGettingUp = false;
     }
 
     // Called when a Pickup Toy gets close to Coots

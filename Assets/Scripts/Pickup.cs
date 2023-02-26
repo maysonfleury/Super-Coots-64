@@ -32,7 +32,7 @@ public class Pickup : MonoBehaviour
             isActivated = true;
         }
 
-        if (other.CompareTag("Coots"))
+        if (other.GetComponent<DestroyPickup>() != null)
         {
             // Coots Hit Pickup
             // TODO: play pickup death sound

@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6838007207944710494}
   - component: {fileID: 2351716423701310723}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -56,7 +56,7 @@ GameObject:
   - component: {fileID: 8848280235579643045}
   - component: {fileID: 8503364915981911688}
   - component: {fileID: 8395359327139996013}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: DrawCall_26
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -139,7 +139,7 @@ GameObject:
   - component: {fileID: 8266294715891444190}
   - component: {fileID: 589020408404405910}
   - component: {fileID: 1442799200697160896}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: DrawCall_28
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -222,7 +222,7 @@ GameObject:
   - component: {fileID: 2028744420374982630}
   - component: {fileID: 145953198872958787}
   - component: {fileID: 7670217029773783585}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: DrawCall_25
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -306,7 +306,7 @@ GameObject:
   - component: {fileID: 12569469}
   - component: {fileID: 12569468}
   - component: {fileID: 12569470}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: jigglylow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -342,7 +342,7 @@ Rigidbody:
   m_GameObject: {fileID: 8431572025172488279}
   serializedVersion: 2
   m_Mass: 1
-  m_Drag: 0
+  m_Drag: 0.15
   m_AngularDrag: 0.05
   m_UseGravity: 1
   m_IsKinematic: 0
@@ -374,7 +374,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cb47f144c81965429dba76a1c5b5b9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pickupName: Jiggly
   torque: 10
   speed: 25
   _collider: {fileID: 63691154874894926}
@@ -389,7 +388,7 @@ GameObject:
   - component: {fileID: 1824468478865944160}
   - component: {fileID: 7451260341394925158}
   - component: {fileID: 6201064649397647755}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: DrawCall_27
   m_TagString: Untagged
   m_Icon: {fileID: 0}

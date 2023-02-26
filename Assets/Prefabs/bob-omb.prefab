@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6147550797085964449}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: skl_root
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -44,7 +44,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 140326560204478266}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: foot_l1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -78,7 +78,7 @@ GameObject:
   - component: {fileID: 725804101}
   - component: {fileID: 725804100}
   - component: {fileID: 725804099}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: bob-omb
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -112,7 +112,7 @@ Rigidbody:
   m_GameObject: {fileID: 805990012655887328}
   serializedVersion: 2
   m_Mass: 5
-  m_Drag: 0
+  m_Drag: 0.25
   m_AngularDrag: 0.05
   m_UseGravity: 1
   m_IsKinematic: 0
@@ -144,7 +144,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cb47f144c81965429dba76a1c5b5b9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pickupName: Bobomb
   torque: 10
   speed: 25
   _collider: {fileID: 6071461601972531391}
@@ -157,7 +156,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4758005962946507116}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: foot_r1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -192,7 +191,7 @@ GameObject:
   - component: {fileID: 4427631504200871671}
   - component: {fileID: 5431710591025692020}
   - component: {fileID: 2401736576932705146}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Collider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -277,7 +276,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5769667406283110836}
   - component: {fileID: 1452226260251430392}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: coll
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -322,7 +321,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6551097678799037037}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: spring
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -353,7 +352,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2961977484580833532}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: root_parachute
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -386,7 +385,7 @@ GameObject:
   - component: {fileID: 6562032333557481199}
   - component: {fileID: 5915466935646540149}
   - component: {fileID: 4075469269002297984}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: polygon0
   m_TagString: Untagged
   m_Icon: {fileID: 0}

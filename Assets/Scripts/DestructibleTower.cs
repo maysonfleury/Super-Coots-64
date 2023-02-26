@@ -7,16 +7,18 @@ public class DestructibleTower : MonoBehaviour
     [SerializeField] private CootsAI _cootsAI;
     [SerializeField] private GameObject _realTower;
     [SerializeField] private GameObject _brokenTowerPrefab;
+    [SerializeField] private GameObject _towerPickupPrefab;
     [SerializeField] private Collider _towerTargetTrigger;
     [SerializeField] private Collider _towerAttackTrigger;
     [SerializeField] private Transform AttackPoint;
     [SerializeField] private Transform RespawnPoint;
     [SerializeField] private Vector3 RealPos;
     [SerializeField] private Transform FakePos;
+    [SerializeField] private Transform PickupPos;
     [SerializeField] private int HitsRemaining = 3;
 
     [SerializeField] private GameObject clonedTower;
-
+    [SerializeField] private GameObject clonedPickup;
     [SerializeField] private CallingSlime SlimeCall;
 
     private bool isRespawning;
@@ -29,6 +31,7 @@ public class DestructibleTower : MonoBehaviour
     {
         RealPos = _realTower.transform.position;
         SlimeCall = gameObject.GetComponentInChildren<CallingSlime>();
+        clonedPickup = Instantiate(_towerPickupPrefab, PickupPos.position, PickupPos.rotation);
     }
 
     private void Update()
@@ -64,6 +67,13 @@ public class DestructibleTower : MonoBehaviour
         {
             SlimeCall.DisableCallCollider();
             SlimeCall.EndCall();
+            if(clonedPickup)
+            {
+                if(!clonedPickup.gameObject.GetComponent<Pickup>().GetAttachState())
+                {
+                    Destroy(clonedPickup);
+                }
+            }
             _realTower.SetActive(false);
             _towerAttackTrigger.enabled = false;
 
@@ -95,7 +105,6 @@ public class DestructibleTower : MonoBehaviour
         isRespawning = true;
         _realTower.SetActive(true);
         _realTower.GetComponent<MeshCollider>().enabled = false;
-        SlimeCall.EnableCallCollider();
         HitsRemaining = 3;
     }
 
@@ -107,6 +116,8 @@ public class DestructibleTower : MonoBehaviour
             _towerTargetTrigger.enabled = true;
             _towerAttackTrigger.enabled = true;
             _realTower.GetComponent<MeshCollider>().enabled = true;
+            SlimeCall.EnableCallCollider();
+            clonedPickup = Instantiate(_towerPickupPrefab, PickupPos.position, PickupPos.rotation);
             isRespawning = false;
         }
     }
