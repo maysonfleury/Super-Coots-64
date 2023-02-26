@@ -8,10 +8,13 @@ public class CootsAI : MonoBehaviour
     [SerializeField] private Collider CombatTriggerCollider;
     [SerializeField] private Transform _target;
     [SerializeField] private bool isAttacking;
+    public bool isDistracted;
     public Collider[] _hurtBoxes;
 
     public AudioClip[] CootsAudioClips;
     [Range(0, 1)] public float CootsAudioVolume = 0.5f;
+
+    [SerializeField] private SpriteRenderer _spriteRender;
 
     private Animator _animator;
     private bool _hasAnimator;
@@ -21,6 +24,8 @@ public class CootsAI : MonoBehaviour
     private int _animWalk;
 
     private float _rotationVelocity;
+    private Transform _prevTarget;
+    private AudioSource purrAudio;
 
     // Start is called before the first frame update
     void Start()
@@ -28,10 +33,17 @@ public class CootsAI : MonoBehaviour
         _hasAnimator = TryGetComponent(out _animator);
         AssignAnimationIDs();
 
+        isAttacking = false;
+        isDistracted = false;
+
         foreach(Collider col in _hurtBoxes)
         {
             col.enabled = false;
         }
+
+        _spriteRender.enabled = false;
+
+        purrAudio = PlayClipAt(CootsAudioClips[8], transform.position, CootsAudioVolume);
     }
 
     private void AssignAnimationIDs()
@@ -45,11 +57,23 @@ public class CootsAI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(!_target)
+        if(!_target && isDistracted)
         {
             CombatTriggerCollider.enabled = true;
-        } else {
+            if(_prevTarget != null)
+            {
+                SetDistractTarget(_prevTarget);
+                _prevTarget = null;
+            }
+            isDistracted = false;
+            _spriteRender.enabled = false;
+        } else if (!_target)
+        {
+            CombatTriggerCollider.enabled = true;
+        }
+        else {
             Walk();
+            WhileDistracted();
         }
     }
 
@@ -59,28 +83,42 @@ public class CootsAI : MonoBehaviour
         // Wake Up
         Debug.Log("Combat Started");
         _animator.SetBool(_animSleep, false);
+        if(purrAudio) Destroy(purrAudio.gameObject);
+        var num = Random.Range(9, 12);   // Between [9] and [11]
+        PlayClipAt(CootsAudioClips[num], transform.position, CootsAudioVolume);
     }
 
     // Called when a Pickup Toy gets close to Coots
-    public void DistractCoots()
+    public void DistractCoots(Transform newTarget)
     {
-        //Debug.Log("Coots is distracted!");
+        Debug.Log("Coots is distracted!");
+        _spriteRender.enabled = true;
 
-        // Check Distance between Coots and Toy
-        float dist = Vector3.Distance(_target.position, transform.position);
-        // If too far away, target player again
-        if(dist > 10f)
+        _prevTarget = _target;
+        SetDistractTarget(newTarget);
+        isDistracted = true;
+    }
+
+    public void WhileDistracted()
+    {
+        if(isDistracted)
         {
-            Debug.Log("Coots is no longer interested in the toy...");
-            CombatTriggerCollider.enabled = true;
-            SetTarget(null);
+            // Check Distance between Coots and Toy
+            float dist = Vector3.Distance(_target.position, transform.position);
+            // If too far away, target player again
+            if(dist > 25f)
+            {
+                Debug.Log("Coots is no longer interested in the toy...");
+                isDistracted = false;
+                _spriteRender.enabled = false;
+                SetTarget(null);
+            }
         }
     }
 
     // Called when either the Player, a Toy, or a Tower are directly in front of Coots
     public void Attack()
     {
-        Debug.Log("Coots Attacks!");
         if (!isAttacking)
         {
             isAttacking = true;
@@ -89,10 +127,14 @@ public class CootsAI : MonoBehaviour
             if(num == 0)
             {
                 _animator.SetTrigger(_animSlam);
+                var num2 = Random.Range(9, 12);   // Between [9] and [11]
+                PlayClipAt(CootsAudioClips[num2], transform.position, CootsAudioVolume);
             }
             else
             {
                 _animator.SetTrigger(_animScratch);
+                var num3 = Random.Range(12, 16);   // Between [12] and [15]
+                PlayClipAt(CootsAudioClips[num3], transform.position, CootsAudioVolume);
             }
         }
     }
@@ -116,6 +158,14 @@ public class CootsAI : MonoBehaviour
 
     public void SetTarget(Transform newTarget)
     {
+        if(!isDistracted)
+        {
+            _target = newTarget;
+        }
+    }
+
+    public void SetDistractTarget(Transform newTarget)
+    {
         _target = newTarget;
     }
 
@@ -124,6 +174,10 @@ public class CootsAI : MonoBehaviour
     {
         // Check Distance between Coots and Target and stop walking if too close
         float dist = Vector3.Distance(_target.position, transform.position);
+        if(dist > 5f && isAttacking && _target.gameObject.CompareTag("Player"))
+        {
+            isAttacking = false;
+        }
         if(dist > 2f && !isAttacking)
         {
             _animator.SetBool(_animWalk, true);
@@ -138,7 +192,6 @@ public class CootsAI : MonoBehaviour
             //transform.Translate(Vector3.forward * WalkSpeed * Time.deltaTime);
         }
         else {
-            Debug.Log("Coots can hit Lud!!");
             _animator.SetBool(_animWalk, false);
         }
     }
@@ -211,7 +264,7 @@ public class CootsAI : MonoBehaviour
         aSource.clip = clip;
         aSource.volume = vol;
         aSource.rolloffMode = AudioRolloffMode.Linear;
-        aSource.maxDistance = 35f;
+        aSource.maxDistance = 45f;
         aSource.spatialBlend = 1.0f;
         aSource.Play(); // start the sound
         Destroy(tempGO, clip.length); // destroy object after clip duration

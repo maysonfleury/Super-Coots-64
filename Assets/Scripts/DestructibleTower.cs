@@ -16,6 +16,9 @@ public class DestructibleTower : MonoBehaviour
     [SerializeField] private int HitsRemaining = 3;
 
     [SerializeField] private GameObject clonedTower;
+
+    [SerializeField] private CallingSlime SlimeCall;
+
     private bool isRespawning;
     private bool attackCooldown;
 
@@ -25,6 +28,7 @@ public class DestructibleTower : MonoBehaviour
     private void Start()
     {
         RealPos = _realTower.transform.position;
+        SlimeCall = gameObject.GetComponentInChildren<CallingSlime>();
     }
 
     private void Update()
@@ -37,12 +41,12 @@ public class DestructibleTower : MonoBehaviour
 
     public Transform GetAttackPoint()
     {
-        _towerTargetTrigger.enabled = false;
         return AttackPoint;
     }
 
     public void AttackTower()
     {
+        _towerTargetTrigger.enabled = false;
         if(!attackCooldown)
         {
             StartCoroutine(AttackTowerRoutine());
@@ -58,6 +62,8 @@ public class DestructibleTower : MonoBehaviour
         HitsRemaining--;
         if(HitsRemaining == 0)
         {
+            SlimeCall.DisableCallCollider();
+            SlimeCall.EndCall();
             _realTower.SetActive(false);
             _towerAttackTrigger.enabled = false;
 
@@ -89,6 +95,7 @@ public class DestructibleTower : MonoBehaviour
         isRespawning = true;
         _realTower.SetActive(true);
         _realTower.GetComponent<MeshCollider>().enabled = false;
+        SlimeCall.EnableCallCollider();
         HitsRemaining = 3;
     }
 

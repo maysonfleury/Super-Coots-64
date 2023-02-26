@@ -20,16 +20,8 @@ public class TriggerDistraction : MonoBehaviour
             // Only target toy if player has thrown it
             if (!toy.GetAttachState() && toy.GetActivatedState())
             {
-                _cootsAI.SetTarget(toy.transform);
-                _cootsAI.DistractCoots();
+                _cootsAI.DistractCoots(toy.transform);
             }
-        }
-
-        if (other.GetComponent<DestructibleTower>() != null)
-        {
-            var tower = other.GetComponent<DestructibleTower>();
-            _cootsAI.SetTarget(tower.GetAttackPoint());
-            _cootsAI.DistractCoots();
         }
     }
 }

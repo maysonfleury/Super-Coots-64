@@ -14,17 +14,21 @@ public class TriggerAttack : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        if (other.CompareTag("Player"))
+        if(!_cootsAI.isDistracted)
         {
-            _cootsAI.Attack();
-        }
+            if (other.CompareTag("Player"))
+            {
+                _cootsAI.Attack();
+            }
 
-        if (other.GetComponent<DestructibleTower>() != null)
-        {
-            Debug.Log("Touched Tower");
-            var tower = other.GetComponent<DestructibleTower>();
-            _cootsAI.Attack();
-            tower.AttackTower();
+            if (other.GetComponent<DestructibleTower>() != null)
+            {
+                Debug.Log("Touched Tower");
+                var tower = other.GetComponent<DestructibleTower>();
+                _cootsAI.SetTarget(tower.GetAttackPoint());
+                _cootsAI.Attack();
+                tower.AttackTower();
+            }
         }
 
         if (other.GetComponent<Pickup>() != null)
