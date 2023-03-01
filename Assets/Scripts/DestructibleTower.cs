@@ -19,7 +19,6 @@ public class DestructibleTower : MonoBehaviour
 
     [SerializeField] private GameObject clonedTower;
     [SerializeField] private GameObject clonedPickup;
-    [SerializeField] private CallingSlime SlimeCall;
 
     private bool isRespawning;
     private bool attackCooldown;
@@ -30,7 +29,6 @@ public class DestructibleTower : MonoBehaviour
     private void Start()
     {
         RealPos = _realTower.transform.position;
-        SlimeCall = gameObject.GetComponentInChildren<CallingSlime>();
         clonedPickup = Instantiate(_towerPickupPrefab, PickupPos.position, PickupPos.rotation);
     }
 
@@ -65,8 +63,6 @@ public class DestructibleTower : MonoBehaviour
         HitsRemaining--;
         if(HitsRemaining == 0)
         {
-            SlimeCall.DisableCallCollider();
-            SlimeCall.EndCall();
             if(clonedPickup)
             {
                 if(!clonedPickup.gameObject.GetComponent<Pickup>().GetAttachState())
@@ -116,7 +112,6 @@ public class DestructibleTower : MonoBehaviour
             _towerTargetTrigger.enabled = true;
             _towerAttackTrigger.enabled = true;
             _realTower.GetComponent<MeshCollider>().enabled = true;
-            SlimeCall.EnableCallCollider();
             clonedPickup = Instantiate(_towerPickupPrefab, PickupPos.position, PickupPos.rotation);
             isRespawning = false;
         }

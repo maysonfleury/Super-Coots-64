@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using Cinemachine;
+using UnityEngine.UI;
 #if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
 using UnityEngine.InputSystem;
 #endif
@@ -41,6 +42,9 @@ namespace StarterAssets
         public AudioClip LandingAudioClip;
         public AudioClip[] FootstepAudioClips;
         [Range(0, 1)] public float FootstepAudioVolume = 0.5f;
+
+        public AudioClip[] LudHurtAudioClips;
+        [Range(0, 1)] public float LudHurtAudioVolume = 0.5f;
 
         [Space(10)]
         [Tooltip("The height the player can jump")]
@@ -113,6 +117,9 @@ namespace StarterAssets
 
         [Tooltip("Triggers Game Over flag when Health hits 0")]
         public bool GameOver;
+
+        [Tooltip("DefeatScreen")]
+        [SerializeField] private Image DefeatScreen;
 
         [Header("Cinemachine")]
         [Tooltip("The follow target set in the Cinemachine Virtual Camera that the camera will follow")]
@@ -246,6 +253,7 @@ namespace StarterAssets
             heldPickup = null;
 
             GameOver = false;
+            DefeatScreen.enabled = false;
         }
 
         private void Update()
@@ -270,6 +278,12 @@ namespace StarterAssets
         private void LateUpdate()
         {
             CameraRotation();
+            if(HitsRemaining <= 0)
+            {
+                GameOver = true;
+                DefeatScreen.enabled = true;
+                Time.timeScale = 0.0f;
+            }
         }
 
         private void AssignAnimationIDs()
@@ -712,18 +726,20 @@ namespace StarterAssets
         {
             if (other.GetComponent<HurtPlayer>() != null)
             {
-                if(HitsRemaining <= 0)
+                if(!isHurt)
                 {
-                    // TODO: Game Over
-                    GameOver = true;
-                }
-                else
-                {
+                    // Animations and collision
+                    _controller.detectCollisions = false;
                     _animator.SetLayerWeight(2, 1f);
                     _animator.SetTrigger(_animFall);
-                    _controller.detectCollisions = false;
                     isHurt = true;
 
+                    // Audio
+                    var index = Random.Range(0, LudHurtAudioClips.Length);
+                    //AudioSource.PlayClipAtPoint(LudHurtAudioClips[index], transform.TransformPoint(_controller.center), LudHurtAudioVolume);
+                    PlayClipAt(LudHurtAudioClips[index], transform.TransformPoint(_controller.center), LudHurtAudioVolume);
+
+                    // Take Damage
                     _healthVisual.TakeDamage(3);
                     HitsRemaining -= 3;
 
@@ -844,6 +860,21 @@ namespace StarterAssets
         {
             yield return new WaitForSeconds(delay);
             _controller.detectCollisions = false;
+        }
+
+        AudioSource PlayClipAt(AudioClip clip, Vector3 pos, float vol)
+        {
+            GameObject tempGO = new GameObject("TempAudio");
+            tempGO.transform.position = pos;
+            AudioSource aSource = tempGO.AddComponent<AudioSource>();
+            aSource.clip = clip;
+            aSource.volume = vol;
+            aSource.rolloffMode = AudioRolloffMode.Linear;
+            aSource.maxDistance = 45f;
+            aSource.spatialBlend = 1.0f;
+            aSource.Play(); // start the sound
+            Destroy(tempGO, clip.length); // destroy object after clip duration
+            return aSource; // return the AudioSource reference
         }
     }
 }

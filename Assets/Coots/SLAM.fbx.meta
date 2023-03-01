@@ -60,14 +60,14 @@ ModelImporter:
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
       curves: []
       events:
-      - time: 0.17647058
+      - time: 0.3686251
         functionName: OnAttackStarted
         data: 
         objectReferenceParameter: {instanceID: 0}
         floatParameter: 0
         intParameter: 0
         messageOptions: 0
-      - time: 0.60993254
+      - time: 0.5706067
         functionName: OnSlam
         data: 
         objectReferenceParameter: {instanceID: 0}

@@ -9,7 +9,7 @@ public class CootsAI : MonoBehaviour
     [SerializeField] private Transform _target;
     [SerializeField] private bool isAttacking;
     public bool isDistracted;
-    public Collider[] _hurtBoxes;
+    public GameObject[] _hurtBoxes;
 
     public AudioClip[] CootsAudioClips;
     [Range(0, 1)] public float CootsAudioVolume = 0.5f;
@@ -38,9 +38,9 @@ public class CootsAI : MonoBehaviour
         isDistracted = false;
         isGettingUp = true;
 
-        foreach(Collider col in _hurtBoxes)
+        foreach(GameObject go in _hurtBoxes)
         {
-            col.enabled = false;
+            go.SetActive(false);
         }
 
         _spriteRender.enabled = false;
@@ -59,9 +59,10 @@ public class CootsAI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(!_target && isDistracted)
+        if (!_target && isDistracted)
         {
-            CombatTriggerCollider.enabled = true;
+            //CombatTriggerCollider.enabled = true;
+            isAttacking = false;
             if(_prevTarget != null)
             {
                 SetDistractTarget(_prevTarget);
@@ -69,16 +70,17 @@ public class CootsAI : MonoBehaviour
             }
             isDistracted = false;
             _spriteRender.enabled = false;
-        } else if (!_target)
+        } 
+        else if (!_target)
         {
             CombatTriggerCollider.enabled = true;
+            isAttacking = false;
         }
-        else {
-            if(!isGettingUp)
-            {
-                Walk();
-                WhileDistracted();
-            }
+
+        if(!isGettingUp)
+        {
+            Walk();
+            WhileDistracted();
         }
     }
 
@@ -118,7 +120,7 @@ public class CootsAI : MonoBehaviour
             // Check Distance between Coots and Toy
             float dist = Vector3.Distance(_target.position, transform.position);
             // If too far away, target player again
-            if(dist > 25f)
+            if(dist > 30f)
             {
                 Debug.Log("Coots is no longer interested in the toy...");
                 isDistracted = false;
@@ -184,27 +186,30 @@ public class CootsAI : MonoBehaviour
     // Makes Coots walk towards a target object
     private void Walk()
     {
-        // Check Distance between Coots and Target and stop walking if too close
-        float dist = Vector3.Distance(_target.position, transform.position);
-        if(dist > 5f && isAttacking && _target.gameObject.CompareTag("Player"))
+        if(_target)
         {
-            isAttacking = false;
-        }
-        if(dist > 2f && !isAttacking)
-        {
-            _animator.SetBool(_animWalk, true);
+            // Check Distance between Coots and Target and stop walking if too close
+            float dist = Vector3.Distance(_target.position, transform.position);
+            if(dist > 5f && isAttacking && _target.gameObject.CompareTag("Player"))
+            {
+                isAttacking = false;
+            }
+            if(dist > 1.5f && !isAttacking)
+            {
+                _animator.SetBool(_animWalk, true);
 
-            Vector3 difference = _target.position - transform.position;
-            float targetRotation = Mathf.Atan2(difference.x, difference.z) * Mathf.Rad2Deg;
-            float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetRotation, ref _rotationVelocity, 0.12f);
-            transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
+                Vector3 difference = _target.position - transform.position;
+                float targetRotation = Mathf.Atan2(difference.x, difference.z) * Mathf.Rad2Deg;
+                float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetRotation, ref _rotationVelocity, 0.12f);
+                transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
 
-            Vector3 targetPos = new Vector3(_target.position.x, 11.032f, _target.position.z);
-            transform.position = Vector3.MoveTowards(transform.position, targetPos, WalkSpeed * Time.deltaTime);
-            //transform.Translate(Vector3.forward * WalkSpeed * Time.deltaTime);
-        }
-        else {
-            _animator.SetBool(_animWalk, false);
+                Vector3 targetPos = new Vector3(_target.position.x, 11.032f, _target.position.z);
+                transform.position = Vector3.MoveTowards(transform.position, targetPos, WalkSpeed * Time.deltaTime);
+                //transform.Translate(Vector3.forward * WalkSpeed * Time.deltaTime);
+            }
+            else {
+                _animator.SetBool(_animWalk, false);
+            }
         }
     }
 
@@ -253,18 +258,18 @@ public class CootsAI : MonoBehaviour
 
     private void OnAttackStarted(AnimationEvent animationEvent)
     {
-        foreach(Collider col in _hurtBoxes)
+        foreach(GameObject go in _hurtBoxes)
         {
-            col.enabled = true;
+            go.SetActive(true);
         }
     }
 
     private void OnAttackFinished(AnimationEvent animationEvent)
     {
         isAttacking = false;
-        foreach(Collider col in _hurtBoxes)
+        foreach(GameObject go in _hurtBoxes)
         {
-            col.enabled = false;
+            go.SetActive(false);
         }
     }
 

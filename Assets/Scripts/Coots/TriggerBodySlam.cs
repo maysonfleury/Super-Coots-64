@@ -18,5 +18,14 @@ public class TriggerBodySlam : MonoBehaviour
         {
             _cootsAI.BodySlam();
         }
+
+        if (other.GetComponent<Pickup>() != null)
+        {
+            var toy = other.GetComponent<Pickup>();
+            if (!toy.GetAttachState())
+            {
+                _cootsAI.BodySlam();
+            }
+        }
     }
 }
